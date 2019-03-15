@@ -9,7 +9,7 @@ class Neo4j():
 		print("create neo4j class ...")
 		
 	def connectDB(self):
-		self.graph = Graph("http://localhost:7474", username="neo4j", password="8313178")
+		self.graph = Graph("http://localhost:7474", username="neo4j", password="123456")
 		print('connect successed')
 		
 	def matchItembyTitle(self,value):
@@ -32,7 +32,7 @@ class Neo4j():
 		return List
 		
 		
-#test = Neo4j()
-#test.connectDB()
+test = Neo4j()
+test.connectDB()
 #a = test.getLabeledHudongItem('labels.txt')
 #print(a[10].openTypeList)

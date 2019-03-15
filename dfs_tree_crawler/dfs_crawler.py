@@ -13,6 +13,7 @@ def getHtml(url):
 	
 	
 def dfs(u_str):
+	#抽取实体
 	print('entry: '+u_str)
 	with open('treenode_list.txt','a') as f:
 		f.write(u_str+"\n")

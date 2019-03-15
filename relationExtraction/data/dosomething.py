@@ -132,10 +132,5 @@ def get_na_entities():
 				if( (id1,id2) not in entities_has_relation ):
 					fw.write(entities_list[i]+"\t"+entities_list[j])
 
-
-
-
-
-
 if __name__ == '__main__':
 	fire.Fire()

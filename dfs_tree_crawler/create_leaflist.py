@@ -9,13 +9,13 @@ def main():
 	neo = Neo4j()
 	neo.connectDB()
 	s = {}
-	with open('leaf_list.txt','r') as f:
+	with open('leaf_list.txt','r',encoding='utf-8') as f:
 		for line in f.readlines():
 			itemname = line.split(' ')[1].strip()
 			if neo.matchHudongItembyTitle(itemname) != None:
 				continue
 			if itemname in s:
-				continue;
+				continue
 			s[itemname] = 1
 			with open('crawled_leaf_list.txt','a') as f:
 				f.write(itemname+'\n')		
