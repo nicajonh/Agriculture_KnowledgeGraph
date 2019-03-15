@@ -2,12 +2,12 @@
 
 Django>=1.11.7
 thulac>=0.1.2
-py2neo
 neobolt
 neotime
 urllib3
+py2neo
 pyfasttext>=0.4.5
-py2neo==4.1.0
 pinyin>=0.4.0
 pymongo>=3.6.1
 Cython>=0.28.5
+
