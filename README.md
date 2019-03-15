@@ -1,6 +1,6 @@
 # Agricultural Knowledge Graph
 
-项目demo：http://ecnukg.vicp.io
+项目demo：http://ecnukg.vicp.io 
 
 ## 项目介绍：
 
@@ -67,32 +67,23 @@
 - predict_labels.txt:  KNN算法预测的15W多个实体的类别
 - /wikidataSpider/wikidataProcessing/wikidata_relation.csv: predict_labels.txt中实体在wikidata中对应的三元组关系
 - attributes.csv: 部分实体的属性(互动百科页面中直接得到)
+- wikidataSpider/weatherData/static_weather_list.csv： 气候类型列表
+- wikidataSpider/weatherData/weather_plant.csv：气候与植物的种植关系
+- wikidataSpider/weatherData/city_weather.csv：城市与气候的关系
 
 
 
 ## 项目配置
 
-**系统需要安装：**
+**0.安装基本环境：**
 
-- scrapy     ---爬虫框架
-- django     ---web框架
-- neo4j       ---图数据库
-- thulac      ---分词、词性标注
-- py2neo==4.1.0    ---python连接neo4j的工具 (注意不兼容旧版本)
-- pyfasttext    ---facebook开源的词向量计算框架
-- pinyin  ---获取中文首字母小工具
-- 预训练好的词向量模型wiki.zh.bin（仅部署网站的话不需要下载）    ---下载链接：http://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.zh.zip
-- mongoDB  ---存储文档数据 (仅部署网站的话不需要安装)
-- pymongo  ---python操作mongoDB的工具
+确保安装好python3和Neo4j（任意版本）
+ 
+安装一系列pip依赖： cd至项目根目录，运行 sudo pip3 install -r requirement.txt
 
+**1.导入数据：**
 
-（以上部分除了neo4j在官网下，wiki.zh.bin在亚马逊s3下载，其它均可直接用pip3 install 安装）
-
-
-
-**项目部署：**
-
-1. 将hudong_pedia.csv导入neo4j：开启neo4j，进入neo4j控制台。将hudong_pedia.csv放入neo4j安装目录下的/import目录。在控制台依次输入：
+将hudong_pedia.csv导入neo4j：开启neo4j，进入neo4j控制台。将hudong_pedia.csv放入neo4j安装目录下的/import目录。在控制台依次输入：
 
 ```
 // 将hudong_pedia.csv 导入
@@ -162,21 +153,56 @@ CREATE (entity1)-[:RELATION { type: line.AttributeName }]->(entity2)
                                                                                                                          
 ```
 
+**导入气候名称:**
 
+将wikidataSpider/weatherData/static_weather_list.csv放在指定的位置(import文件夹下)
 
+```
+//导入节点
+LOAD CSV WITH HEADERS FROM "file:///static_weather_list.csv" AS line
+MERGE (:Weather { title: line.title })
+
+//添加索引
+CREATE CONSTRAINT ON (c:Weather)
+ASSERT c.title IS UNIQUE
+```
+
+**导入气候与植物的关系**
+
+```
+
+将wikidataSpider/weatherData/weather_plant.csv放在指定的位置(import文件夹下)
+//导入hudongItem和新加入节点之间的关系
+LOAD CSV  WITH HEADERS FROM "file:///weather_plant.csv" AS line
+MATCH (entity1:Weather{title:line.Weather}) , (entity2:HudongItem{title:line.Plant})
+CREATE (entity1)-[:Weather2Plant { type: line.relation }]->(entity2)
+导入城市的气候
+
+将city_weather.csv放在指定的位置(import 文件夹下)
+(这步大约需要15分钟左右)
+//导入城市对应的气候
+LOAD CSV WITH HEADERS FROM "file:///city_weather.csv" AS line
+MATCH (city{title:line.city}) , (weather{title:line.weather})
+CREATE (city)-[:CityWeather { type: line.relation }]->(weather)
+```
 
 
 以上步骤是导入爬取到的关系
 
 
+**2.下载词向量模型：（如果只是为了运行项目，步骤2可以不做，预测结果已经离线处理好了）**
+ 
+~~http://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.zh.zip  
+  将wiki.zh.bin放入 KNN_predict 目录 。~~
 
-2. 下载词向量模型：http://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.zh.zip  
-  将wiki.zh.bin放入 KNN_predict 目录 。 （如果只是为了运行项目，步骤2可以不做，预测结果已经离线处理好了）
 
+**3.修改Neo4j用户**
 
+进入demo/Model/neo_models.py,修改第9行的neo4j账号密码，改成你自己的
 
-3. 进入demo/Model/neo_models.py,修改第9行的neo4j账号密码，改成你自己的
-4. 进入demo目录，然后运行脚本：
+**4.启动服务**
+
+进入demo目录，然后运行脚本：
 
 ```
 sudo sh django_server_start.sh
@@ -185,10 +211,15 @@ sudo sh django_server_start.sh
 这样就成功的启动了django。我们进入8000端口主页面，输入文本，即可看到以下命名实体和分词的结果（确保django和neo4j都处于开启状态）
 
 ----------------------
+###  (update 2018.11.11)
+添加了农业知识问答
+![](https://raw.githubusercontent.com/CrisJk/SomePicture/master/blog_picture/1541921074856.jpg)
 
 ###  (update 2018.10.26) 
 - 修改部分配置信息
-- 关系查询中，添加了2个实体间的最短路查询
+- 关系查询中，添加了2个实体间的最短路查询，从而挖掘出实体之间一些奇怪的隐含关系
+
+![image](https://i.loli.net/2018/10/27/5bd3bf6ce4472.jpg)
 
 ### 农业实体识别+实体分类
 
@@ -255,23 +286,14 @@ sudo sh django_server_start.sh
 
 ![](https://raw.githubusercontent.com/CrisJk/crisjk.github.io/master/resource/pictures/Agriculture-KnowledgeGraph-Data-README/mongo.png)
 
+
+
 **使用方法**: 启动neo4j,mongodb之后，进入demo目录，启动django服务，进入127.0.0.1:8000/tagging即可使用
 
 
 
+
 ## 思路
-
-### 图谱实体获取：
-
-1.根据19000条农业网词条，按照筛法提取名词（分批进行，每2000条1批，每批维护一个不可重集合）
-
-2.将9批词做交集，生成农业词典
-
-3.将词典中的词在互动百科中进行爬取，抛弃不存在的页面，提取页面内容，存到数据库中
-
-4.根据页面内容，提取每一个词条页面的特征，构造相似度的比较方法，使用KNN进行分类
-
-5.最后获取每个词条的所属类别，同时能够剔除不属于农业的无关词条
 
 ### 命名实体识别:
 
@@ -284,13 +306,13 @@ sudo sh django_server_start.sh
 4. 对于剩余词及词组合，匹配知识库中以分好类的实体。如果没有匹配到实体，或者匹配到的实体属于0类（即非实体），则将其过滤掉。 
 5. 实体的分类算法见下文。
 
-###  HudongItem
+
+### 实体分类：
+
+#### 特征提取：
 
 ![image](https://raw.githubusercontent.com/qq547276542/blog_image/master/agri/1.png)
 
-
-
-### 页面分类
 
 #### 分类器：KNN算法
 
@@ -306,7 +328,6 @@ sudo sh django_server_start.sh
 - 相同baseInfoKey下baseInfoValue相同的个数
 - 预测一个页面时，由于KNN要将该页面和训练集中所有页面进行比较，因此每次预测的复杂度是O(n)，n为训练集规模。在这个过程中，我们可以统计各个分相似度的IDF值，均值，方差，标准差，然后对4个相似度进行标准化:**(x-均值)/方差**
 - 上面四个部分的相似度的加权和为最终的两个页面的相似度，权值由向量weight控制，通过10折叠交叉验证+网格搜索得到
-
 
 
 ### Labels：（命名实体的分类）
@@ -330,3 +351,9 @@ sudo sh django_server_start.sh
 | 14    | Agricultural implements（农机具，一般指机械或物理设施）  | “收割机”，“渔网”                               |
 | 15    | Technology(农业相关术语，技术和措施)                 | “延后栽培"，“卫生防疫”，“扦插”                       |
 | 16    | other（除上面类别之外的其它名词实体，可以与农业无关但必须是实体）      | “加速度"，“cpu”，“计算机”，“爱鸟周”，“人民币”，“《本草纲目》”，“花岗岩” |
+
+
+### 关系抽取
+
+使用远程监督方法构建数据集，利用tensorflow训练PCNN模型
+详情见： [relationExtraction](https://github.com/qq547276542/Agriculture_KnowledgeGraph/tree/master/relationExtraction)

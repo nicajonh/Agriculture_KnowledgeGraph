@@ -59,10 +59,21 @@ def get_relation_sentence():
 				print(line)
 
 
-#过滤得到包含指定关系的样本，除去实体1和实体2相同的样本，把两个实体都是国家的样本去掉
+#过滤得到包含指定关系的样本，除去实体1和实体2相同的样本，把两个实体都是国家的样本去掉，去掉实体类型为0(invalid),16(Other)的样本
 def filter_dataset():
 	country_list  = []
 	relation_list = ['instance of','has part','subclass of','parent taxon','material used','natural product of taxon']
+	entity_type = {}
+	with open('entities.txt','r',encoding='utf8')as fr:
+		for line in fr.readlines():
+			try:
+				word,type = line.split()
+			except:
+				raise IndexError
+			entity_type[word] = str(type)
+
+
+
 	with open('country-code.json','r',encoding = 'utf8') as fr:
 		country_json = json.load(fr)
 		for x in country_json:
@@ -80,21 +91,12 @@ def filter_dataset():
 					#去掉实体一和实体二都是国家的句子
 					if(line_s[1].strip() in country_list and line_s[3].strip() in country_list):
 						continue
+					#去掉实体类型为"0"或"16"的样本
+					if entity_type[line_s[1].strip()] == '0' or entity_type[line_s[3].strip()] =='0' or \
+						entity_type[line_s[1].strip()] == '16' or entity_type[line_s[3].strip()] == '16':
+						continue
 					fw.write(line)
 
-
-#给entity编号:
-def get_entity_id():
-	cnt = 0
-	entity2id = {}
-	with open('entities.txt','r',encoding='utf8') as fr:
-		for line in fr.readlines():
-			line_s = line.split()
-			if(entity2id.get(line_s[0].strip()) is None):
-				entity2id[line_s[0].strip()] = cnt
-				cnt += 1
-	with open('entity2id.json','w',encoding = 'utf8') as fw:
-		json.dump(entity2id,fw)
 
 #得到NA数据
 def get_na_entities():
@@ -123,6 +125,7 @@ def get_na_entities():
 
 	#得到没有关系的实体对
 
+	cnt = 0
 	with open('no_relation_pairs.txt','w',encoding='utf8') as fw:
 		for i in range(len(entities_list)):
 			print("%s" %format(1.0*i/len(entities_list),'0.2f'),end='',flush=True)
@@ -131,6 +134,68 @@ def get_na_entities():
 				id2 = entity2id[entities_list[j]]
 				if( (id1,id2) not in entities_has_relation ):
 					fw.write(entities_list[i]+"\t"+entities_list[j])
+					cnt += 1
+					entities_has_relation.append((id1,id2))
+					fw.write(entities_list[i]+"\t"+entities_list[j]+'\n')
+				if(cnt%20 ==0):
+					i += 1
+					break
+				if(cnt>500000):
+					break
+			if(cnt>500000):
+				break
+#统计同一对实体之间所有关系数量的分布
+def entity_relation_number():
+
+	with open('entity2id.json','r',encoding='utf8') as fr:
+		entity2id = json.load(fr)
+
+	entity_pair_relation = dict()
+	with open('../../wikidataSpider/wikidataProcessing/wikidata_relation.csv', 'r', encoding='utf8') as fr:
+		line = fr.readline()
+		while(True):
+			line = fr.readline()
+			if(not line):
+				break
+			line_s = line.split(',')
+			relation = line_s[1].strip()
+			if(line_s[0].strip() not in entity2id or line_s[2].strip() not in entity2id):
+				continue
+			id1 = entity2id[line_s[0].strip()]
+			id2 = entity2id[line_s[2].strip()]
+			if entity_pair_relation.get((id1,id2)) is None :
+				entity_pair_relation[(id1,id2)] = [relation]
+			elif relation not in entity_pair_relation[(id1,id2)]:
+				entity_pair_relation[(id1,id2)].append(relation)
+
+
+
+	with open('../../wikidataSpider/wikidataProcessing/wikidata_relation2.csv','r',encoding='utf8') as fr:
+		line = fr.readline()
+		while (True):
+			line = fr.readline()
+			if (not line):
+				break
+			line_s = line.split(',')
+			relation = line_s[1].strip()
+			if(line_s[0].strip() not in entity2id or line_s[2].strip() not in entity2id):
+				continue
+			id1 = entity2id[line_s[0].strip()]
+			id2 = entity2id[line_s[2].strip()]
+			if entity_pair_relation.get((id1, id2)) is None:
+				entity_pair_relation[(id1, id2)] = [relation]
+			elif relation not in entity_pair_relation[(id1, id2)]:
+				entity_pair_relation[(id1, id2)].append(relation)
+
+	num_dict = {}
+
+	for key in entity_pair_relation:
+		num  =  len(entity_pair_relation[key])
+		if(num_dict.get(num) is None):
+			num_dict[num] = 1
+		else:
+			num_dict[num] += 1
+	print(num_dict)
 
 if __name__ == '__main__':
 	fire.Fire()
