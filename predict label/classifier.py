@@ -99,7 +99,6 @@ class Classifier:
 		fm = len(L1)*len(L2)
 		if fm > 0:
 			openTypeList_simi /= fm
-		
 		return openTypeList_simi
 		
 	# 返回2个item的baseInfoKeyList相似度	

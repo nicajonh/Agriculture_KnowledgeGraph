@@ -1,7 +1,7 @@
 import sys
 import tensorflow as tf
 sys.path.append("..")
-import config
+from algorithm import config
 import numpy as np
 
 def word_embedding(word,word_vec_mat,var_scope,word_embedding_dim,add_unk_blank):

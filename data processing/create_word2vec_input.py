@@ -87,7 +87,7 @@ def createTable(num):
 			file_text += ' ' + word
 		file_text += '\n'
 				
-	file_object = open('article'+str(num)+".txt",'w')
+	file_object = open('article'+str(num)+".txt",'w',encoding='utf-8')
 	file_object.write(file_text)
 	file_object.close()
 

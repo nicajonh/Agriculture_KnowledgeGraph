@@ -4,7 +4,7 @@ import json
 import os
 import numpy as np
 import random
-import config
+from algorithm import config
 import jieba
 import re
 

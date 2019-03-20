@@ -1,7 +1,7 @@
-import module
+import algorithm.module as module
 import os
 import sys
-import config
+import algorithm.config as config
 import tensorflow as tf
 import numpy as np
 

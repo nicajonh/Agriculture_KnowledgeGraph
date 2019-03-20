@@ -5,8 +5,8 @@ import sys
 import os
 sys.path.append("..")
 
-from Model.neo_models import Neo4j 
-from Model.mongo_model import Mongo
+from demo.Model.neo_models import Neo4j
+from demo.Model.mongo_model import Mongo
 from toolkit.vec_API import word_vector_model
 from toolkit.tree_API import TREE
 	
@@ -18,7 +18,8 @@ neo_con.connectDB()
 print('neo4j connected!')
 
 predict_labels = {}   # 预加载实体到标注的映射字典
-filePath = os.getcwd()
+#filePath = os.getcwd()
+filePath = os.path.abspath(os.path.join(os.path.dirname(__file__),os.path.pardir))
 with open(filePath+'/toolkit/predict_labels.txt','r',encoding="utf-8") as csvfile:
 	reader = csv.reader(csvfile, delimiter=' ')
 	for row in reader:
@@ -45,10 +46,10 @@ mongo = Mongo()
 mongo.makeConnection()
 print("mongodb connected")
 #连接数据库
-mongodb = mongo.getDatabase("agricultureKnowledgeGraph")
+mongodb = mongo.getDatabase("agriKG")
 print("connect to agricultureKnowledgeGraph")
 # 得到collection
-collection = mongo.getCollection("train_data")
+collection = mongo.getCollection("agriculturedata")
 print("get connection train_data")
 
 testDataCollection = mongo.getCollection("test_data")

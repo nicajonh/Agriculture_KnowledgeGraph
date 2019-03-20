@@ -23,18 +23,21 @@ class entityRelationSpider(scrapy.spiders.Spider):
 		alreadyGet = []
 		if(os.path.exists(os.path.join(filePath,"entity1_entity2.json"))):
 			#读取文件
-			with open(os.path.join(filePath,"entity1_entity2.json"),'r') as fr:
+			with open(os.path.join(filePath,"entity1_entity2.json"),'r',encoding='utf-8') as fr:
 				for line in fr:
-					entityIds = json.loads(line)
-					alreadyGet.append(entityIds['entity1']+entityIds['relatedEntityId'])
-		with open(filePath+"/wikidataRelation/relationResult.json", "r") as fr:
+					if line and line!='':
+						entityIds = json.loads(line)
+						alreadyGet.append(entityIds['entity1']+entityIds['relatedEntityId'])
+					else:
+						break
+		with open(filePath+"/wikidataRelation/relationResult.json", "r" ,encoding='utf-8') as fr:
 			for line in fr.readlines():
 				relationJson = json.loads(line)
 				relation = relationJson['rmention']
 				relationName[relation] = relationJson['chrmention']
 
 		count = 0 
-		with open(filePath+"/wikidataRelation/readytoCrawl.json","r") as fr:
+		with open(filePath+"/wikidataRelation/readytoCrawl.json","r",encoding='utf-8') as fr:
 			for line in fr.readlines():
 				count += 1 
 				print(1.0*count/33355)

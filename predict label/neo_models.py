@@ -33,7 +33,6 @@ class Neo4j():
 			cur = HudongItem(ctx)
 			cur.label = line[1]
 			List.append(cur)
-		
 		print('load LabeledHudongItem over ...')
 		return List
 	

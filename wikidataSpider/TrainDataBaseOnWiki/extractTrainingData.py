@@ -4,8 +4,8 @@ import os
 import thulac
 import sys
 sys.path.append("..")
-from toolkit.pre_load import pre_load_thu,neo_con,predict_labels
-from toolkit.NER import get_NE,temporaryok,get_explain,get_detail_explain
+from demo.toolkit.pre_load import pre_load_thu,neo_con,predict_labels
+from demo.toolkit.NER import get_NE,temporaryok,get_explain,get_detail_explain
 import json
 #分句标识符号
 stopToken = "。！？"
@@ -30,9 +30,10 @@ corpusPath = os.path.abspath(os.path.join(os.getcwd(),"../wikiextractor/extracte
 #获取已经处理过得文件
 fileReadedList = []
 with open("fileReaded.txt","r") as fileReaded:
-	for line in fileReaded:
-		fileReadedList.append(line.strip())
-		print(line.strip())
+		for line in fileReaded:
+			if line and line!='':
+				fileReadedList.append(line.strip())
+				print(line.strip())
 #递归遍历语料库文件夹
 with open("train_data.txt",'w') as fw:
 	with open("fileReaded.txt","a") as filereaded:

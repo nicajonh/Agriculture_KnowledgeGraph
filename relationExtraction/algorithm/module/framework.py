@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-import config
+from algorithm import config
 import tensorflow as tf
 import os
 import time

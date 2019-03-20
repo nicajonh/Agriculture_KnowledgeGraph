@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-import config
+from algorithm import config
 import tensorflow as tf
 import numpy as np
 

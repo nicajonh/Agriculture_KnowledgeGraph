@@ -1,5 +1,6 @@
 import scrapy
 import re
+import os
 import requests
 from wikientities.items import WikientitiesItem
 import time
@@ -22,7 +23,11 @@ class entitiesSpider(scrapy.spiders.Spider):
 		entityNumberList = list()
 		jsonItemList = list()
 		entityCount = 0
-		with open('/home/kuangjun/predict_labels7.txt','r') as f:
+		path_dir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		label_path=os.path.join(os.path.dirname(path_dir)\
+								,'predict_labels.txt')
+		#with open('/home/kuangjun/predict_labels7.txt','r') as f:
+		with open(label_path,'r',encoding='utf-8') as f:
 			for line in f:
 				entity = line.split(" ")[0]
 				if(len(line.split(" ")) >= 2):

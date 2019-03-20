@@ -63,7 +63,6 @@ def createWordSet(x):
 				S.add(x[i-1][0]+x[i][0])
 		if nowok(x[i][1]):  #other
 			S.add(x[i][0])
-			
 		i += 1
 		
 	return S

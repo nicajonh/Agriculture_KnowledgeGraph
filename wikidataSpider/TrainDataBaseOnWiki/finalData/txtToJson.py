@@ -5,8 +5,8 @@ if(len(sys.argv) != 3):
 	print("参数数量错误，请输入两个参数 源文件名 目标文件名")
 else:
 	
-	with open(sys.argv[1],'r') as fr:
-		with open(sys.argv[2],'a') as fw:
+	with open(sys.argv[1],'r',encoding='utf-8') as fr:
+		with open(sys.argv[2],'a',encoding='utf-8') as fw:
 			for line in fr:
 				data = line.split('\t')
 				if(len(data) == 6):

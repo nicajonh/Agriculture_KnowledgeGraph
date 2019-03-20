@@ -50,8 +50,8 @@ class DataScrubbing(object):
 				count = 0 
 				readFilePath = os.path.abspath(os.path.join(self.pythonFilePath,file))
 				writeFilePath = os.path.abspath(os.path.join(self.pythonFilePath,file+"(2)"))
-				with open(readFilePath,'r') as fr:
-					with open(writeFilePath,'w') as fw:
+				with open(readFilePath,'r',encoding='utf-8') as fr:
+					with open(writeFilePath,'w',encoding='utf-8') as fw:
 						flag = 0
 						replaceStr = ""
 						for line in fr:
